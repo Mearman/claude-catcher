@@ -11,6 +11,7 @@ find_strays() {
 
 count_strays() {
   local pids="$1"
+  if [ -z "$pids" ]; then echo 0; return; fi
   echo "$pids" | wc -l | tr -d ' '
 }
 
