@@ -10,7 +10,7 @@ BIN_DIR="$HOME/.local/bin"
 CRON_PATTERN="claude-catcher monitor"
 
 find_strays() {
-  ps -eo pid,state,tty,comm | awk '$3 == "??" && $4 == "claude" && $2 == "R" {print $1}'
+  ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 == "R" && $3 !~ /tty|pts|ttys/ {print $1}'
 }
 
 count_strays() {
@@ -124,7 +124,11 @@ cmd_monitor() {
   echo "$details" >> "$LOG_FILE"
 
   if [ "$NOTIFY" = true ]; then
-    osascript -e "display notification \"$count stray Claude process(es) detected\" with title \"claude-catcher\""
+    if command -v osascript &>/dev/null; then
+      osascript -e "display notification \"$count stray Claude process(es) detected\" with title \"claude-catcher\""
+    elif command -v notify-send &>/dev/null; then
+      notify-send "claude-catcher" "$count stray Claude process(es) detected"
+    fi
   fi
 
   if [ "$KILL" = true ]; then

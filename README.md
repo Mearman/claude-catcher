@@ -43,7 +43,7 @@ Logs are written to `~/.local/log/claude-catcher.log`.
 
 ## Requirements
 
-macOS only. Process detection relies on macOS-specific `ps` output (`??` for no controlling terminal) and notifications use `osascript`.
+macOS or Linux. Notifications use `osascript` (macOS) or `notify-send` (Linux) if available.
 
 ## Install
 
