@@ -202,19 +202,8 @@ Aliases:
 EOF
 }
 
-# Resolve command from argv or invocation name
 cmd="${1:-help}"
-invocation="$(basename "$0")"
-
-case "$invocation" in
-  stray-claude) cmd="ps" ;;
-  hang-claude)  cmd="kill" ;;
-esac
-
-case "$invocation" in
-  stray-claude|hang-claude) shift 0 2>/dev/null ;;
-  *) shift 1 2>/dev/null ;;
-esac
+shift 1 2>/dev/null || true
 
 case "$cmd" in
   ps|ls)    cmd_ps "$@" ;;
