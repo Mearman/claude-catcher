@@ -18,7 +18,7 @@ BIN_DIR="$HOME/.local/bin"
 CRON_PATTERN="claude-catcher monitor"
 
 find_strays() {
-  ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 == "R" && $3 !~ /tty|pts|ttys/ {print $1}'
+  ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 ~ /^R/ && $3 !~ /tty|pts|ttys/ {print $1}'
 }
 
 find_detached() {
