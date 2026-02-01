@@ -242,6 +242,10 @@ cmd_install() {
     echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
   fi
 
+  if [ "$1" = "--no-config" ]; then
+    return
+  fi
+
   echo ""
   cmd_config
 }
@@ -288,6 +292,7 @@ Commands:
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
   install         Symlink commands to ~/.local/bin and configure cron
+                    --no-config  Skip interactive cron configuration
   uninstall       Remove symlinks and cron entry
   update          Pull latest from git
   help            Show this help
@@ -310,7 +315,7 @@ case "$cmd" in
   cull)     cmd_cull ;;
   monitor)  cmd_monitor "$@" ;;
   config)   cmd_config ;;
-  install)  cmd_install ;;
+  install)  cmd_install "$@" ;;
   uninstall) cmd_uninstall ;;
   update)   cmd_update ;;
   help|-h|--help) cmd_help ;;
