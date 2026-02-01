@@ -177,6 +177,25 @@ cmd_install() {
   cmd_config
 }
 
+cmd_uninstall() {
+  local BIN_DIR="$HOME/.local/bin"
+
+  for cmd in claude-catcher stray-claude hang-claude; do
+    if [ -L "$BIN_DIR/$cmd" ]; then
+      rm "$BIN_DIR/$cmd"
+      echo "  Removed $BIN_DIR/$cmd"
+    fi
+  done
+
+  if crontab -l 2>/dev/null | grep -q "claude-catcher"; then
+    crontab -l 2>/dev/null | grep -v "claude-catcher" | crontab -
+    echo "  Removed cron entry"
+  fi
+
+  echo ""
+  echo "Done. Log file at ~/.local/log/claude-catcher.log was left in place."
+}
+
 cmd_update() {
   if [ ! -d "$CLAUDE_CATCHER_ROOT/.git" ]; then
     echo "Error: $CLAUDE_CATCHER_ROOT is not a git repository." >&2
@@ -201,6 +220,7 @@ Commands:
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
   install         Symlink commands to ~/.local/bin and configure cron
+  uninstall       Remove symlinks and cron entry
   update          Pull latest from git
   help            Show this help
 
@@ -219,6 +239,7 @@ case "$cmd" in
   monitor)  cmd_monitor "$@" ;;
   config)   cmd_config ;;
   install)  cmd_install ;;
+  uninstall) cmd_uninstall ;;
   update)   cmd_update ;;
   help|-h|--help) cmd_help ;;
   *)        echo "Unknown command: $cmd"; cmd_help; exit 1 ;;
