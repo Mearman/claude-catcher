@@ -14,6 +14,7 @@ claude-catcher <command> [options]
 Commands:
   ps, ls          List stray Claude processes
   kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
+  cull            SIGKILL all detached Claude processes (any state)
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
   install         Symlink commands to ~/.local/bin and configure cron
@@ -49,7 +50,7 @@ macOS or Linux. Notifications use `osascript` (macOS) or `notify-send` (Linux) i
 ## Install
 
 ```bash
-git clone <repo-url> ~/Developer/claude-catcher && ~/Developer/claude-catcher/claude-catcher install
+git clone https://github.com/Mearman/claude-catcher ~/Developer/claude-catcher && ~/Developer/claude-catcher/claude-catcher install
 ```
 
 This symlinks the commands into `~/.local/bin` and walks you through cron configuration.
@@ -71,6 +72,18 @@ claude-catcher update
 ```bash
 claude-catcher uninstall
 ```
+
+## Testing
+
+[![CI](https://github.com/Mearman/claude-catcher/actions/workflows/ci.yml/badge.svg)](https://github.com/Mearman/claude-catcher/actions/workflows/ci.yml)
+
+Tests use [bats-core](https://github.com/bats-core/bats-core). Install it, then:
+
+```bash
+bats test/
+```
+
+CI runs the full suite on both macOS and Ubuntu.
 
 ## How it works
 
