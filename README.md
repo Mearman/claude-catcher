@@ -6,6 +6,16 @@ Finds and kills runaway Claude Code processes that have detached from their term
 
 Claude Code sometimes spawns a subprocess that detaches from the terminal and gets stuck in a runaway loop, consuming 40-90% CPU. That same resource-heavy process is usually what causes the parent Claude session to hang. Killing the stray unsticks the session — and frees your CPU.
 
+### Can't I just use a one-liner?
+
+Yes:
+
+```bash
+ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 ~ /^R/ && $3 !~ /tty|pts|ttys/ {print $1}' | xargs kill -9
+```
+
+That's the nuclear version. `claude-catcher` wraps this with graceful shutdown (SIGTERM before SIGKILL), automated cron monitoring with logging, desktop notifications, and convenient aliases so you don't have to remember the `awk` incantation.
+
 ## The solution
 
 `claude-catcher` detects and kills these strays. Run it manually, or set up a cron job to monitor and auto-kill them in the background.
@@ -105,3 +115,4 @@ A "stray" is any `claude` process that:
 - Is in running state (`R`)
 
 These are orphaned processes that have lost their parent session and will never exit on their own.
+
