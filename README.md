@@ -15,6 +15,7 @@ Commands:
   ps, ls          List stray Claude processes
   kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
   monitor         Cron-friendly monitor (--kill --notify --quiet)
+  config           Configure the cron job (interval, flags)
   update          Pull latest from git
   help            Show this help
 ```
