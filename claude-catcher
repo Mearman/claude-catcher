@@ -83,7 +83,13 @@ cmd_kill() {
 cmd_monitor() {
   local LOCK_DIR="/tmp/claude-catcher.lock"
   if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-    exit 0  # another instance is running
+    # Remove stale lock older than 5 minutes
+    if [ -d "$LOCK_DIR" ] && find "$LOCK_DIR" -maxdepth 0 -mmin +5 -print -quit | grep -q .; then
+      rmdir "$LOCK_DIR" 2>/dev/null
+      mkdir "$LOCK_DIR" 2>/dev/null || exit 0
+    else
+      exit 0  # another instance is running
+    fi
   fi
   trap 'rmdir "$LOCK_DIR" 2>/dev/null' EXIT
 
