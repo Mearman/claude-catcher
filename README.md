@@ -18,6 +18,7 @@ Commands:
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
   install         Symlink commands to ~/.local/bin and configure cron
+                    --no-config  Skip interactive cron configuration
   uninstall       Remove symlinks and cron entry
   update          Pull latest from git
   help            Show this help
@@ -50,10 +51,17 @@ macOS or Linux. Notifications use `osascript` (macOS) or `notify-send` (Linux) i
 ## Install
 
 ```bash
-git clone https://github.com/Mearman/claude-catcher ~/Developer/claude-catcher && ~/Developer/claude-catcher/claude-catcher install
+curl -fsSL https://raw.githubusercontent.com/Mearman/claude-catcher/main/install.sh | sh
 ```
 
-This symlinks the commands into `~/.local/bin` and walks you through cron configuration.
+Or manually:
+
+```bash
+git clone https://github.com/Mearman/claude-catcher ~/.claude-catcher
+~/.claude-catcher/claude-catcher install
+```
+
+This symlinks the commands into `~/.local/bin` and walks you through cron configuration. Pass `--no-config` to skip the interactive cron setup.
 
 Ensure `~/.local/bin` is on your PATH:
 
