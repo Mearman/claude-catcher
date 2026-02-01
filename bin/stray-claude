@@ -1,13 +1,1 @@
-#!/bin/bash
-# Lists detached Claude processes with no controlling terminal
-source "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/../lib/lib.sh"
-
-pids=$(find_strays)
-
-if [ -z "$pids" ]; then
-  echo "No stray Claude processes found."
-  exit 0
-fi
-
-echo "$(count_strays "$pids") stray Claude process(es):"
-show_strays "$pids"
+claude-catcher
