@@ -8,7 +8,13 @@ Claude Code sometimes spawns a subprocess that detaches from the terminal and ge
 
 ### Can't I just use a one-liner?
 
-Yes:
+Check for truant Claude instances:
+
+```bash
+ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 ~ /^R/ && $3 !~ /tty|pts|ttys/'
+```
+
+Kill them:
 
 ```bash
 ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 ~ /^R/ && $3 !~ /tty|pts|ttys/ {print $1}' | xargs kill -9
