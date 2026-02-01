@@ -1,0 +1,51 @@
+#!/bin/bash
+# Monitors for stray Claude processes and optionally kills them.
+# Usage: claude-catcher [--kill] [--notify] [--quiet]
+#   --kill    Automatically kill stray processes (default: log only)
+#   --notify  Send macOS notification when strays are found
+#   --quiet   Don't log when no strays are found
+source "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/../lib/lib.sh"
+
+LOG_DIR="$HOME/.local/log"
+LOG_FILE="$LOG_DIR/claude-catcher.log"
+KILL=false
+NOTIFY=false
+QUIET=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --kill)   KILL=true ;;
+    --notify) NOTIFY=true ;;
+    --quiet)  QUIET=true ;;
+  esac
+done
+
+mkdir -p "$LOG_DIR"
+
+timestamp() { date +"%Y-%m-%d %H:%M:%S"; }
+
+pids=$(find_strays)
+
+if [ -z "$pids" ]; then
+  [ "$QUIET" = false ] && echo "$(timestamp) No stray Claude processes." >> "$LOG_FILE"
+  exit 0
+fi
+
+count=$(count_strays "$pids")
+details=$(show_strays "$pids")
+
+echo "$(timestamp) Found $count stray Claude process(es):" >> "$LOG_FILE"
+echo "$details" >> "$LOG_FILE"
+
+if [ "$NOTIFY" = true ]; then
+  osascript -e "display notification \"$count stray Claude process(es) detected\" with title \"claude-catcher\""
+fi
+
+if [ "$KILL" = true ]; then
+  kill_strays "$pids"
+  if [ $? -eq 1 ]; then
+    echo "$(timestamp) Force killed $count stray(s)." >> "$LOG_FILE"
+  else
+    echo "$(timestamp) Killed $count stray(s)." >> "$LOG_FILE"
+  fi
+fi
