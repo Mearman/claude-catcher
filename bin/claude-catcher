@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$0")")" && pwd)"
 source "$SCRIPT_DIR/../lib/lib.sh"
 
 cmd_ps() {
@@ -91,7 +91,7 @@ cmd_monitor() {
 
 cmd_config() {
   local BIN_DIR
-  BIN_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  BIN_DIR="$SCRIPT_DIR"
   local CATCHER="$BIN_DIR/claude-catcher"
   local current
   current=$(crontab -l 2>/dev/null | grep "claude-catcher monitor" || true)

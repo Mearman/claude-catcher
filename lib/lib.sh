@@ -1,8 +1,9 @@
 #!/bin/bash
 # Shared library for claude-catcher commands
 
-# Resolve real path through symlinks
-CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+_realpath() { perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$1"; }
+
+CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(_realpath "${BASH_SOURCE[0]}")")/.." && pwd)"
 
 find_strays() {
   ps -eo pid,state,tty,comm | awk '$3 == "??" && $4 == "claude" && $2 == "R" {print $1}'

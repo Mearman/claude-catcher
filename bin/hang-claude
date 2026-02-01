@@ -1,2 +1,2 @@
 #!/bin/bash
-exec "$(dirname "$(readlink -f "$0")")/claude-catcher" kill "$@"
+exec "$(dirname "$(perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$0")")/claude-catcher" kill "$@"
