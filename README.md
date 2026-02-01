@@ -17,6 +17,7 @@ Commands:
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
   install         Symlink commands to ~/.local/bin and configure cron
+  uninstall       Remove symlinks and cron entry
   update          Pull latest from git
   help            Show this help
 ```
@@ -47,7 +48,7 @@ macOS only. Process detection relies on macOS-specific `ps` output (`??` for no 
 ## Install
 
 ```bash
-git clone <repo-url> ~/Developer/claude-catcher && ~/Developer/claude-catcher/install.sh
+git clone <repo-url> ~/Developer/claude-catcher && ~/Developer/claude-catcher/bin/claude-catcher install
 ```
 
 This symlinks the commands into `~/.local/bin` and walks you through cron configuration.
@@ -67,7 +68,7 @@ claude-catcher update
 ## Uninstall
 
 ```bash
-./uninstall.sh
+claude-catcher uninstall
 ```
 
 ## How it works
