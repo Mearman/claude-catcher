@@ -51,7 +51,7 @@ macOS or Linux. Notifications use `osascript` (macOS) or `notify-send` (Linux) i
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Mearman/claude-catcher/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/Mearman/claude-catcher/main/.claude-catcher.d/install.sh | sh
 ```
 
 Or manually:
