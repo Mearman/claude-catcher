@@ -97,11 +97,9 @@ cmd_monitor() {
 }
 
 cmd_config() {
-  local BIN_DIR
-  BIN_DIR="$SCRIPT_DIR"
   local CATCHER="$BIN_DIR/claude-catcher"
   local current
-  current=$(crontab -l 2>/dev/null | grep "claude-catcher monitor" || true)
+  current=$(crontab -l 2>/dev/null | grep "$CRON_PATTERN" || true)
 
   if [ -n "$current" ]; then
     echo "Current cron entry:"
@@ -115,7 +113,7 @@ cmd_config() {
   read -p "Enable cron job? [y/N] " enable
   if [[ ! "$enable" =~ ^[Yy]$ ]]; then
     if [ -n "$current" ]; then
-      crontab -l 2>/dev/null | grep -v "claude-catcher monitor" | crontab -
+      crontab -l 2>/dev/null | grep -v "$CRON_PATTERN" | crontab -
       echo "Cron job removed."
     fi
     return
@@ -152,16 +150,15 @@ cmd_config() {
   local cron_cmd="$CATCHER monitor$flags"
 
   # Install
-  (crontab -l 2>/dev/null | grep -v "claude-catcher monitor"; echo "$schedule $cron_cmd") | crontab -
+  (crontab -l 2>/dev/null | grep -v "$CRON_PATTERN"; echo "$schedule $cron_cmd") | crontab -
   echo ""
   echo "Cron installed: $schedule $cron_cmd"
 }
 
 cmd_install() {
-  local BIN_DIR="$HOME/.local/bin"
   mkdir -p "$BIN_DIR" || { echo "Error: cannot create $BIN_DIR" >&2; exit 1; }
 
-  for cmd in claude-catcher stray-claude hang-claude; do
+  for cmd in "${COMMANDS[@]}"; do
     ln -sf "$CLAUDE_CATCHER_ROOT/bin/$cmd" "$BIN_DIR/$cmd"
     echo "  $BIN_DIR/$cmd → $CLAUDE_CATCHER_ROOT/bin/$cmd"
   done
@@ -178,17 +175,15 @@ cmd_install() {
 }
 
 cmd_uninstall() {
-  local BIN_DIR="$HOME/.local/bin"
-
-  for cmd in claude-catcher stray-claude hang-claude; do
+  for cmd in "${COMMANDS[@]}"; do
     if [ -L "$BIN_DIR/$cmd" ]; then
       rm "$BIN_DIR/$cmd"
       echo "  Removed $BIN_DIR/$cmd"
     fi
   done
 
-  if crontab -l 2>/dev/null | grep -q "claude-catcher"; then
-    crontab -l 2>/dev/null | grep -v "claude-catcher" | crontab -
+  if crontab -l 2>/dev/null | grep -q "$CRON_PATTERN"; then
+    crontab -l 2>/dev/null | grep -v "$CRON_PATTERN" | crontab -
     echo "  Removed cron entry"
   fi
 
