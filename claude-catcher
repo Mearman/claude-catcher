@@ -7,7 +7,6 @@ _realpath() { perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$1"; }
 CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(_realpath "$0")")" && pwd)"
 
 BIN_DIR="$HOME/.local/bin"
-COMMANDS=(claude-catcher stray-claude hang-claude)
 CRON_PATTERN="claude-catcher monitor"
 
 find_strays() {
@@ -220,7 +219,7 @@ cmd_install() {
 }
 
 cmd_uninstall() {
-  for cmd in "${COMMANDS[@]}"; do
+  for cmd in claude-catcher stray-claude hang-claude; do
     if [ -L "$BIN_DIR/$cmd" ]; then
       rm "$BIN_DIR/$cmd"
       echo "  Removed $BIN_DIR/$cmd"
