@@ -15,20 +15,5 @@ jobs:
           else
             sudo apt-get update && sudo apt-get install -y bats
           fi
-      - name: Debug spawn behavior
-        run: |
-          bash -c 'exec -a claude dd if=/dev/zero of=/dev/null bs=1 2>/dev/null' &
-          PID=$!
-          sleep 1
-          echo "=== spawned PID: $PID ==="
-          echo "=== ps -eo pid,state,tty,comm (filtered) ==="
-          ps -eo pid,state,tty,comm | grep -E "claude|PID"
-          echo "=== ps -p $PID ==="
-          ps -p "$PID" -o pid,state,tty,comm 2>&1 || true
-          echo "=== show_strays style ==="
-          ps -o pid,%cpu,etime,state,command -p "$PID" 2>&1 || true
-          echo "=== find_strays awk ==="
-          ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 == "R" && $3 !~ /tty|pts|ttys/ {print $1}'
-          kill -9 $PID 2>/dev/null || true
       - name: Run tests
         run: bats test/
