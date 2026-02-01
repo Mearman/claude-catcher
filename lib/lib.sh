@@ -17,7 +17,7 @@ count_strays() {
 
 show_strays() {
   local pids="$1"
-  ps -o pid,%cpu,etime,state,command -p $(echo $pids | tr '\n' ',') 2>/dev/null
+  ps -o pid,%cpu,etime,state,command -p "$(echo "$pids" | tr '\n' ',')" 2>/dev/null
 }
 
 kill_strays() {

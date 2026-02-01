@@ -33,7 +33,7 @@ cmd_kill() {
 
   if [ "$1" = "-f" ]; then
     echo "Force killing (SIGKILL)..."
-    kill -9 $pids
+    echo "$pids" | xargs kill -9
   else
     kill_strays "$pids"
     if [ $? -eq 1 ]; then
