@@ -4,42 +4,26 @@ source "$SCRIPT_DIR/../lib/lib.sh" || { echo "Error: failed to load lib.sh" >&2;
 type find_strays &>/dev/null || { echo "Error: lib.sh did not define expected functions" >&2; exit 1; }
 
 cmd_ps() {
-  local pids
-  pids=$(find_strays)
-
-  if [ -z "$pids" ]; then
-    echo "No stray Claude processes found."
-    exit 0
-  fi
-
-  echo "$(count_strays "$pids") stray Claude process(es):"
-  show_strays "$pids"
+  require_strays
+  echo "$STRAY_COUNT stray Claude process(es):"
+  show_strays "$STRAY_PIDS"
 }
 
 cmd_kill() {
-  local pids
-  pids=$(find_strays)
-
-  if [ -z "$pids" ]; then
-    echo "No stray Claude processes found."
-    exit 0
-  fi
-
-  local count
-  count=$(count_strays "$pids")
-  echo "Found $count stray Claude process(es):"
-  show_strays "$pids"
+  require_strays
+  echo "Found $STRAY_COUNT stray Claude process(es):"
+  show_strays "$STRAY_PIDS"
   echo ""
 
   if [ "$1" = "-f" ]; then
     echo "Force killing (SIGKILL)..."
-    echo "$pids" | xargs kill -9
+    echo "$STRAY_PIDS" | xargs kill -9
   else
-    kill_strays "$pids"
+    kill_strays "$STRAY_PIDS"
     if [ $? -eq 1 ]; then
-      echo "Force killed $count stray(s)."
+      echo "Force killed $STRAY_COUNT stray(s)."
     else
-      echo "Killed $count stray(s)."
+      echo "Killed $STRAY_COUNT stray(s)."
     fi
   fi
 }

@@ -24,6 +24,16 @@ show_strays() {
   ps -o pid,%cpu,etime,state,command -p "$(echo "$pids" | tr '\n' ',')" 2>/dev/null
 }
 
+# Find strays or exit. Sets STRAY_PIDS and STRAY_COUNT.
+require_strays() {
+  STRAY_PIDS=$(find_strays)
+  if [ -z "$STRAY_PIDS" ]; then
+    echo "No stray Claude processes found."
+    exit 0
+  fi
+  STRAY_COUNT=$(count_strays "$STRAY_PIDS")
+}
+
 kill_strays() {
   local pids="$1"
   echo "$pids" | xargs kill 2>/dev/null
