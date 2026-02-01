@@ -1,6 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "$(perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$0")")" && pwd)"
-source "$SCRIPT_DIR/../lib/lib.sh"
+source "$SCRIPT_DIR/../lib/lib.sh" || { echo "Error: failed to load lib.sh" >&2; exit 1; }
+type find_strays &>/dev/null || { echo "Error: lib.sh did not define expected functions" >&2; exit 1; }
 
 cmd_ps() {
   local pids
