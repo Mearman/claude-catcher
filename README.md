@@ -41,12 +41,10 @@ Logs are written to `~/.local/log/claude-catcher.log`.
 ## Install
 
 ```bash
-git clone <repo-url> ~/Developer/claude-catcher
-cd ~/Developer/claude-catcher
-./install.sh
+git clone <repo-url> ~/Developer/claude-catcher && ~/Developer/claude-catcher/install.sh
 ```
 
-This symlinks the commands into `~/.local/bin` and optionally installs a cron job to auto-kill strays every 5 minutes.
+This symlinks the commands into `~/.local/bin` and walks you through cron configuration.
 
 Ensure `~/.local/bin` is on your PATH:
 
