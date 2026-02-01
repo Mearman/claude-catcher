@@ -29,43 +29,17 @@ teardown() {
   rmdir /tmp/claude-catcher.lock 2>/dev/null || true
 }
 
-# Create an executable named "claude" for spawning fake processes.
-# On macOS, exec -a sets argv[0] which ps comm reflects.
-# On Linux, ps comm derives from the kernel task->comm (the executable
-# filename), so we need an actual file named "claude".
-_make_fake_claude() {
-  if [ -z "$FAKE_CLAUDE" ]; then
-    FAKE_CLAUDE="${BATS_TEST_TMPDIR}/claude"
-    if [ "$(uname)" = "Darwin" ]; then
-      # On macOS, a symlink works and avoids code-signing issues with copies
-      ln -sf "$(command -v bash)" "$FAKE_CLAUDE"
-    else
-      cp "$(command -v bash)" "$FAKE_CLAUDE"
-    fi
-  fi
-}
-
-# Spawn a fake "claude" process that looks like a stray (state R, no tty).
+# Spawn a fake "claude" process in R (running) state, no tty.
+# exec -a renames the process to "claude" in ps, dd keeps it in R state.
 spawn_stray() {
-  _make_fake_claude
-  if [ "$(uname)" = "Darwin" ]; then
-    # On macOS, exec -a sets the comm field via argv[0]
-    bash -c 'exec -a claude bash -c "while true; do :; done"' &
-  else
-    "$FAKE_CLAUDE" -c 'while true; do :; done' &
-  fi
+  bash -c 'exec -a claude dd if=/dev/zero of=/dev/null bs=1 2>/dev/null' &
   disown
   SPAWNED_PIDS+=($!)
 }
 
 # Spawn a fake detached claude process (sleeping state, no tty).
 spawn_detached() {
-  _make_fake_claude
-  if [ "$(uname)" = "Darwin" ]; then
-    bash -c 'exec -a claude sleep 300' &
-  else
-    "$FAKE_CLAUDE" -c 'sleep 300' &
-  fi
+  bash -c 'exec -a claude sleep 300' &
   disown
   SPAWNED_PIDS+=($!)
 }
@@ -80,6 +54,5 @@ wait_for_processes() {
     sleep 0.2
     tries=$((tries + 1))
   done
-  # Last resort: give it one more second
   sleep 1
 }
