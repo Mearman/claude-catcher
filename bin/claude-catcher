@@ -170,9 +170,17 @@ cmd_install() {
 }
 
 cmd_update() {
-  cd "$CLAUDE_CATCHER_ROOT"
-  git pull --ff-only
-  echo "Updated."
+  if [ ! -d "$CLAUDE_CATCHER_ROOT/.git" ]; then
+    echo "Error: $CLAUDE_CATCHER_ROOT is not a git repository." >&2
+    exit 1
+  fi
+  cd "$CLAUDE_CATCHER_ROOT" || { echo "Error: cannot cd to $CLAUDE_CATCHER_ROOT" >&2; exit 1; }
+  if git pull --ff-only; then
+    echo "Updated."
+  else
+    echo "Update failed. You may have local changes or a diverged branch." >&2
+    exit 1
+  fi
 }
 
 cmd_help() {
