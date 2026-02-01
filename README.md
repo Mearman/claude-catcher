@@ -6,6 +6,31 @@ Finds and kills runaway Claude Code processes that have detached from their term
 
 Claude Code processes occasionally become orphaned — detached from any terminal, stuck in a running state, each consuming 40-90% CPU. Left unchecked, they accumulate and grind your machine to a halt.
 
+## The solution
+
+`claude-catcher` detects and kills these strays. Run it manually, or set up a cron job to monitor and auto-kill them in the background.
+
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Mearman/claude-catcher/main/.claude-catcher.d/install.sh | sh
+```
+
+Or manually:
+
+```bash
+git clone https://github.com/Mearman/claude-catcher ~/.claude-catcher
+~/.claude-catcher/claude-catcher install
+```
+
+This symlinks the commands into `~/.local/bin` and walks you through cron configuration. Pass `--no-config` to skip the interactive cron setup.
+
+Ensure `~/.local/bin` is on your PATH:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
 ## Usage
 
 ```
@@ -39,7 +64,7 @@ Commands:
 | Flag       | Description                          |
 | ---------- | ------------------------------------ |
 | `--kill`   | Auto-kill strays (default: log only) |
-| `--notify` | Send macOS notification              |
+| `--notify` | Send desktop notification            |
 | `--quiet`  | Suppress "no strays" log entries     |
 
 Logs are written to `~/.local/log/claude-catcher.log`.
@@ -47,27 +72,6 @@ Logs are written to `~/.local/log/claude-catcher.log`.
 ## Requirements
 
 macOS or Linux. Notifications use `osascript` (macOS) or `notify-send` (Linux) if available.
-
-## Install
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Mearman/claude-catcher/main/.claude-catcher.d/install.sh | sh
-```
-
-Or manually:
-
-```bash
-git clone https://github.com/Mearman/claude-catcher ~/.claude-catcher
-~/.claude-catcher/claude-catcher install
-```
-
-This symlinks the commands into `~/.local/bin` and walks you through cron configuration. Pass `--no-config` to skip the interactive cron setup.
-
-Ensure `~/.local/bin` is on your PATH:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
 
 ## Update
 
