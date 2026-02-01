@@ -63,7 +63,7 @@ cmd_monitor() {
     esac
   done
 
-  mkdir -p "$LOG_DIR"
+  mkdir -p "$LOG_DIR" || { echo "Error: cannot create $LOG_DIR" >&2; exit 1; }
 
   local ts
   ts=$(date +"%Y-%m-%d %H:%M:%S")
@@ -159,7 +159,7 @@ cmd_config() {
 
 cmd_install() {
   local BIN_DIR="$HOME/.local/bin"
-  mkdir -p "$BIN_DIR"
+  mkdir -p "$BIN_DIR" || { echo "Error: cannot create $BIN_DIR" >&2; exit 1; }
 
   for cmd in claude-catcher stray-claude hang-claude; do
     ln -sf "$CLAUDE_CATCHER_ROOT/bin/$cmd" "$BIN_DIR/$cmd"
