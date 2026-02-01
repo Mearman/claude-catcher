@@ -68,7 +68,7 @@ cmd_kill() {
 
   if [ "$1" = "-f" ]; then
     echo "Force killing (SIGKILL)..."
-    echo "$STRAY_PIDS" | xargs kill -9
+    echo "$STRAY_PIDS" | xargs kill -9 2>/dev/null
   else
     kill_strays "$STRAY_PIDS"
     if [ $? -eq 1 ]; then
