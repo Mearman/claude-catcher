@@ -3,9 +3,6 @@ set -e
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 BIN_DIR="$HOME/.local/bin"
-CRON_SCHEDULE="*/5 * * * *"
-CRON_CMD="$BIN_DIR/claude-catcher monitor --kill --notify --quiet"
-
 mkdir -p "$BIN_DIR"
 
 # Symlink commands
@@ -22,17 +19,9 @@ if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
   echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 
-# Cron setup
+# Cron setup via config command
 echo ""
-read -p "Install cron job to auto-kill strays every 5 minutes? [y/N] " answer
-if [[ "$answer" =~ ^[Yy]$ ]]; then
-  # Remove any existing claude-catcher cron entry, then add new one
-  (crontab -l 2>/dev/null | grep -v "claude-catcher"; echo "$CRON_SCHEDULE $CRON_CMD") | crontab -
-  echo "  Cron installed: $CRON_SCHEDULE $CRON_CMD"
-else
-  echo "  Skipped cron setup. Run manually or add later:"
-  echo "  $CRON_SCHEDULE $CRON_CMD"
-fi
+"$REPO_DIR/bin/claude-catcher" config
 
 echo ""
 echo "Done."
