@@ -22,12 +22,17 @@ show_strays() {
 
 kill_strays() {
   local pids="$1"
-  kill $pids 2>/dev/null
+  echo "$pids" | xargs kill 2>/dev/null
   sleep 2
-  local survivors
-  survivors=$(find_strays)
+  local survivors=""
+  local pid
+  for pid in $pids; do
+    if ps -p "$pid" -o pid= &>/dev/null; then
+      survivors="$survivors $pid"
+    fi
+  done
   if [ -n "$survivors" ]; then
-    kill -9 $survivors 2>/dev/null
+    echo "$survivors" | xargs kill -9 2>/dev/null
     return 1 # needed force kill
   fi
   return 0 # clean kill
