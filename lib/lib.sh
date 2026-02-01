@@ -5,6 +5,10 @@ _realpath() { perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$1"; }
 
 CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(_realpath "${BASH_SOURCE[0]}")")/.." && pwd)"
 
+BIN_DIR="$HOME/.local/bin"
+COMMANDS=(claude-catcher stray-claude hang-claude)
+CRON_PATTERN="claude-catcher monitor"
+
 find_strays() {
   ps -eo pid,state,tty,comm | awk '$3 == "??" && $4 == "claude" && $2 == "R" {print $1}'
 }
