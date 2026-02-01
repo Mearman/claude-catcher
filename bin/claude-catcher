@@ -149,6 +149,26 @@ cmd_config() {
   echo "Cron installed: $schedule $cron_cmd"
 }
 
+cmd_install() {
+  local BIN_DIR="$HOME/.local/bin"
+  mkdir -p "$BIN_DIR"
+
+  for cmd in claude-catcher stray-claude hang-claude; do
+    ln -sf "$CLAUDE_CATCHER_ROOT/bin/$cmd" "$BIN_DIR/$cmd"
+    echo "  $BIN_DIR/$cmd → $CLAUDE_CATCHER_ROOT/bin/$cmd"
+  done
+
+  if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    echo ""
+    echo "WARNING: $BIN_DIR is not on your PATH."
+    echo "Add this to your shell config:"
+    echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+  fi
+
+  echo ""
+  cmd_config
+}
+
 cmd_update() {
   cd "$CLAUDE_CATCHER_ROOT"
   git pull --ff-only
@@ -164,6 +184,7 @@ Commands:
   kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
+  install         Symlink commands to ~/.local/bin and configure cron
   update          Pull latest from git
   help            Show this help
 
@@ -192,6 +213,7 @@ case "$cmd" in
   kill)     cmd_kill "$@" ;;
   monitor)  cmd_monitor "$@" ;;
   config)   cmd_config ;;
+  install)  cmd_install ;;
   update)   cmd_update ;;
   help|-h|--help) cmd_help ;;
   *)        echo "Unknown command: $cmd"; cmd_help; exit 1 ;;
