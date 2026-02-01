@@ -1,1 +1,2 @@
-claude-catcher
+#!/bin/bash
+exec "$(dirname "$(readlink -f "$0")")/claude-catcher" ps "$@"
