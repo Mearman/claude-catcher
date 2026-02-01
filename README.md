@@ -30,6 +30,7 @@ Commands:
 | -------------- | --------------------- |
 | `stray-claude` | `claude-catcher ps`   |
 | `hang-claude`  | `claude-catcher kill` |
+| `claude-cull`  | `claude-catcher cull` |
 
 ### Monitor flags
 

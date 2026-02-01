@@ -13,6 +13,10 @@ find_strays() {
   ps -eo pid,state,tty,comm | awk '$4 == "claude" && $2 == "R" && $3 !~ /tty|pts|ttys/ {print $1}'
 }
 
+find_detached() {
+  ps -eo pid,state,tty,comm | awk '$4 == "claude" && $3 !~ /tty|pts|ttys/ {print $1}'
+}
+
 count_strays() {
   local pids="$1"
   if [ -z "$pids" ]; then echo 0; return; fi
@@ -77,6 +81,26 @@ cmd_kill() {
       echo "Killed $STRAY_COUNT stray(s)."
     fi
   fi
+}
+
+cmd_cull() {
+  local pids
+  pids=$(find_detached)
+
+  if [ -z "$pids" ]; then
+    echo "No detached Claude processes found."
+    exit 0
+  fi
+
+  local count
+  count=$(count_strays "$pids")
+  echo "Found $count detached Claude process(es):"
+  show_strays "$pids"
+  echo ""
+
+  echo "Force killing (SIGKILL)..."
+  echo "$pids" | xargs kill -9 2>/dev/null
+  echo "Culled $count process(es)."
 }
 
 cmd_monitor() {
@@ -206,7 +230,7 @@ cmd_install() {
   ln -sf "$CLAUDE_CATCHER_ROOT/claude-catcher" "$BIN_DIR/claude-catcher"
   echo "  $BIN_DIR/claude-catcher → $CLAUDE_CATCHER_ROOT/claude-catcher"
 
-  for cmd in stray-claude hang-claude; do
+  for cmd in stray-claude hang-claude claude-cull; do
     ln -sf "$CLAUDE_CATCHER_ROOT/.claude-catcher.d/$cmd" "$BIN_DIR/$cmd"
     echo "  $BIN_DIR/$cmd → $CLAUDE_CATCHER_ROOT/.claude-catcher.d/$cmd"
   done
@@ -223,7 +247,7 @@ cmd_install() {
 }
 
 cmd_uninstall() {
-  for cmd in claude-catcher stray-claude hang-claude; do
+  for cmd in claude-catcher stray-claude hang-claude claude-cull; do
     if [ -L "$BIN_DIR/$cmd" ]; then
       rm "$BIN_DIR/$cmd"
       echo "  Removed $BIN_DIR/$cmd"
@@ -260,6 +284,7 @@ Usage: claude-catcher <command> [options]
 Commands:
   ps, ls          List stray Claude processes
   kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
+  cull            SIGKILL all detached Claude processes (any state)
   monitor         Cron-friendly monitor (--kill --notify --quiet)
   config          Configure the cron job (interval, flags)
   install         Symlink commands to ~/.local/bin and configure cron
@@ -270,6 +295,7 @@ Commands:
 Aliases:
   stray-claude    → claude-catcher ps
   hang-claude     → claude-catcher kill
+  claude-cull     → claude-catcher cull
 EOF
 }
 
@@ -281,6 +307,7 @@ shift 1 2>/dev/null || true
 case "$cmd" in
   ps|ls)    cmd_ps "$@" ;;
   kill)     cmd_kill "$@" ;;
+  cull)     cmd_cull ;;
   monitor)  cmd_monitor "$@" ;;
   config)   cmd_config ;;
   install)  cmd_install ;;
