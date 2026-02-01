@@ -48,7 +48,7 @@ macOS only. Process detection relies on macOS-specific `ps` output (`??` for no 
 ## Install
 
 ```bash
-git clone <repo-url> ~/Developer/claude-catcher && ~/Developer/claude-catcher/bin/claude-catcher install
+git clone <repo-url> ~/Developer/claude-catcher && ~/Developer/claude-catcher/claude-catcher install
 ```
 
 This symlinks the commands into `~/.local/bin` and walks you through cron configuration.

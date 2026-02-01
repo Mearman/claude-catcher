@@ -4,7 +4,7 @@
 
 _realpath() { perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$1"; }
 
-CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(_realpath "$0")")/.." && pwd)"
+CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(_realpath "$0")")" && pwd)"
 
 BIN_DIR="$HOME/.local/bin"
 COMMANDS=(claude-catcher stray-claude hang-claude)
@@ -194,9 +194,12 @@ cmd_config() {
 cmd_install() {
   mkdir -p "$BIN_DIR" || { echo "Error: cannot create $BIN_DIR" >&2; exit 1; }
 
-  for cmd in "${COMMANDS[@]}"; do
-    ln -sf "$CLAUDE_CATCHER_ROOT/bin/$cmd" "$BIN_DIR/$cmd"
-    echo "  $BIN_DIR/$cmd → $CLAUDE_CATCHER_ROOT/bin/$cmd"
+  ln -sf "$CLAUDE_CATCHER_ROOT/claude-catcher" "$BIN_DIR/claude-catcher"
+  echo "  $BIN_DIR/claude-catcher → $CLAUDE_CATCHER_ROOT/claude-catcher"
+
+  for cmd in stray-claude hang-claude; do
+    ln -sf "$CLAUDE_CATCHER_ROOT/.claude-catcher.d/$cmd" "$BIN_DIR/$cmd"
+    echo "  $BIN_DIR/$cmd → $CLAUDE_CATCHER_ROOT/.claude-catcher.d/$cmd"
   done
 
   if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then

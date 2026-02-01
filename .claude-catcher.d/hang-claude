@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname "$(perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$0")")/../claude-catcher" kill "$@"
