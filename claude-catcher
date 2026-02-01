@@ -2,7 +2,15 @@
 
 # --- core ---
 
-_realpath() { perl -MCwd -e 'print Cwd::realpath($ARGV[0])' "$1"; }
+_realpath() {
+  local f="$1"
+  while [ -L "$f" ]; do
+    local dir="$(cd "$(dirname "$f")" && pwd)"
+    f="$(readlink "$f")"
+    [[ "$f" != /* ]] && f="$dir/$f"
+  done
+  echo "$(cd "$(dirname "$f")" && pwd)/$(basename "$f")"
+}
 
 CLAUDE_CATCHER_ROOT="$(cd "$(dirname "$(_realpath "$0")")" && pwd)"
 
