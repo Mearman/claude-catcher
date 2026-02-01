@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "crontab $*" >> "${STUB_LOG:-/tmp/claude-catcher-stub.log}"

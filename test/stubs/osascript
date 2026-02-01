@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "osascript $*" >> "${STUB_LOG:-/tmp/claude-catcher-stub.log}"
