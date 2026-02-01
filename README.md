@@ -23,18 +23,18 @@ Commands:
 
 `stray-claude` and `hang-claude` are also installed as shortcuts:
 
-| Alias | Equivalent |
-|---|---|
-| `stray-claude` | `claude-catcher ps` |
-| `hang-claude` | `claude-catcher kill` |
+| Alias          | Equivalent            |
+| -------------- | --------------------- |
+| `stray-claude` | `claude-catcher ps`   |
+| `hang-claude`  | `claude-catcher kill` |
 
 ### Monitor flags
 
-| Flag | Description |
-|---|---|
-| `--kill` | Auto-kill strays (default: log only) |
-| `--notify` | Send macOS notification |
-| `--quiet` | Suppress "no strays" log entries |
+| Flag       | Description                          |
+| ---------- | ------------------------------------ |
+| `--kill`   | Auto-kill strays (default: log only) |
+| `--notify` | Send macOS notification              |
+| `--quiet`  | Suppress "no strays" log entries     |
 
 Logs are written to `~/.local/log/claude-catcher.log`.
 
@@ -69,6 +69,7 @@ claude-catcher update
 ## How it works
 
 A "stray" is any `claude` process that:
+
 - Has no controlling terminal (`??`)
 - Is in running state (`R`)
 
