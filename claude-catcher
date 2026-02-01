@@ -17,7 +17,7 @@ find_detached() {
   ps -eo pid,state,tty,comm | awk '$4 == "claude" && $3 !~ /tty|pts|ttys/ {print $1}'
 }
 
-count_strays() {
+count_pids() {
   local pids="$1"
   if [ -z "$pids" ]; then echo 0; return; fi
   echo "$pids" | wc -l | tr -d ' '
@@ -35,7 +35,7 @@ require_strays() {
     echo "No stray Claude processes found."
     exit 0
   fi
-  STRAY_COUNT=$(count_strays "$STRAY_PIDS")
+  STRAY_COUNT=$(count_pids "$STRAY_PIDS")
 }
 
 kill_strays() {
@@ -93,7 +93,7 @@ cmd_cull() {
   fi
 
   local count
-  count=$(count_strays "$pids")
+  count=$(count_pids "$pids")
   echo "Found $count detached Claude process(es):"
   show_strays "$pids"
   echo ""
@@ -141,7 +141,7 @@ cmd_monitor() {
   fi
 
   local count details
-  count=$(count_strays "$pids")
+  count=$(count_pids "$pids")
   details=$(show_strays "$pids")
 
   echo "$ts Found $count stray Claude process(es):" >> "$LOG_FILE"
