@@ -4,7 +4,7 @@ Finds and kills runaway Claude Code processes that have detached from their term
 
 ## The problem
 
-Claude Code processes occasionally become orphaned — detached from any terminal, stuck in a running state, each consuming 40-90% CPU. Left unchecked, they accumulate and grind your machine to a halt.
+Claude Code sometimes spawns a subprocess that detaches from the terminal and gets stuck in a runaway loop, consuming 40-90% CPU. That same resource-heavy process is usually what causes the parent Claude session to hang. Killing the stray unsticks the session — and frees your CPU.
 
 ## The solution
 
