@@ -1,51 +1,136 @@
 #!/bin/bash
-# Monitors for stray Claude processes and optionally kills them.
-# Usage: claude-catcher [--kill] [--notify] [--quiet]
-#   --kill    Automatically kill stray processes (default: log only)
-#   --notify  Send macOS notification when strays are found
-#   --quiet   Don't log when no strays are found
-source "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/../lib/lib.sh"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+source "$SCRIPT_DIR/../lib/lib.sh"
 
-LOG_DIR="$HOME/.local/log"
-LOG_FILE="$LOG_DIR/claude-catcher.log"
-KILL=false
-NOTIFY=false
-QUIET=false
+cmd_ps() {
+  local pids
+  pids=$(find_strays)
 
-for arg in "$@"; do
-  case "$arg" in
-    --kill)   KILL=true ;;
-    --notify) NOTIFY=true ;;
-    --quiet)  QUIET=true ;;
-  esac
-done
-
-mkdir -p "$LOG_DIR"
-
-timestamp() { date +"%Y-%m-%d %H:%M:%S"; }
-
-pids=$(find_strays)
-
-if [ -z "$pids" ]; then
-  [ "$QUIET" = false ] && echo "$(timestamp) No stray Claude processes." >> "$LOG_FILE"
-  exit 0
-fi
-
-count=$(count_strays "$pids")
-details=$(show_strays "$pids")
-
-echo "$(timestamp) Found $count stray Claude process(es):" >> "$LOG_FILE"
-echo "$details" >> "$LOG_FILE"
-
-if [ "$NOTIFY" = true ]; then
-  osascript -e "display notification \"$count stray Claude process(es) detected\" with title \"claude-catcher\""
-fi
-
-if [ "$KILL" = true ]; then
-  kill_strays "$pids"
-  if [ $? -eq 1 ]; then
-    echo "$(timestamp) Force killed $count stray(s)." >> "$LOG_FILE"
-  else
-    echo "$(timestamp) Killed $count stray(s)." >> "$LOG_FILE"
+  if [ -z "$pids" ]; then
+    echo "No stray Claude processes found."
+    exit 0
   fi
-fi
+
+  echo "$(count_strays "$pids") stray Claude process(es):"
+  show_strays "$pids"
+}
+
+cmd_kill() {
+  local pids
+  pids=$(find_strays)
+
+  if [ -z "$pids" ]; then
+    echo "No stray Claude processes found."
+    exit 0
+  fi
+
+  local count
+  count=$(count_strays "$pids")
+  echo "Found $count stray Claude process(es):"
+  show_strays "$pids"
+  echo ""
+
+  if [ "$1" = "-f" ]; then
+    echo "Force killing (SIGKILL)..."
+    kill -9 $pids
+  else
+    kill_strays "$pids"
+    if [ $? -eq 1 ]; then
+      echo "Force killed $count stray(s)."
+    else
+      echo "Killed $count stray(s)."
+    fi
+  fi
+}
+
+cmd_monitor() {
+  local LOG_DIR="$HOME/.local/log"
+  local LOG_FILE="$LOG_DIR/claude-catcher.log"
+  local KILL=false NOTIFY=false QUIET=false
+
+  for arg in "$@"; do
+    case "$arg" in
+      --kill)   KILL=true ;;
+      --notify) NOTIFY=true ;;
+      --quiet)  QUIET=true ;;
+    esac
+  done
+
+  mkdir -p "$LOG_DIR"
+
+  local ts
+  ts=$(date +"%Y-%m-%d %H:%M:%S")
+  local pids
+  pids=$(find_strays)
+
+  if [ -z "$pids" ]; then
+    [ "$QUIET" = false ] && echo "$ts No stray Claude processes." >> "$LOG_FILE"
+    exit 0
+  fi
+
+  local count details
+  count=$(count_strays "$pids")
+  details=$(show_strays "$pids")
+
+  echo "$ts Found $count stray Claude process(es):" >> "$LOG_FILE"
+  echo "$details" >> "$LOG_FILE"
+
+  if [ "$NOTIFY" = true ]; then
+    osascript -e "display notification \"$count stray Claude process(es) detected\" with title \"claude-catcher\""
+  fi
+
+  if [ "$KILL" = true ]; then
+    kill_strays "$pids"
+    if [ $? -eq 1 ]; then
+      echo "$ts Force killed $count stray(s)." >> "$LOG_FILE"
+    else
+      echo "$ts Killed $count stray(s)." >> "$LOG_FILE"
+    fi
+  fi
+}
+
+cmd_update() {
+  cd "$CLAUDE_CATCHER_ROOT"
+  git pull --ff-only
+  echo "Updated."
+}
+
+cmd_help() {
+  cat <<'EOF'
+Usage: claude-catcher <command> [options]
+
+Commands:
+  ps, ls          List stray Claude processes
+  kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
+  monitor         Cron-friendly monitor (--kill --notify --quiet)
+  update          Pull latest from git
+  help            Show this help
+
+Aliases:
+  stray-claude    → claude-catcher ps
+  hang-claude     → claude-catcher kill
+EOF
+}
+
+# Resolve command from argv or invocation name
+cmd="${1:-help}"
+invocation="$(basename "$0")"
+
+case "$invocation" in
+  stray-claude) cmd="ps" ;;
+  hang-claude)  cmd="kill" ;;
+esac
+
+case "$invocation" in
+  stray-claude|hang-claude) shift 0 2>/dev/null ;;
+  *) shift 1 2>/dev/null ;;
+esac
+
+case "$cmd" in
+  ps|ls)    cmd_ps "$@" ;;
+  kill)     cmd_kill "$@" ;;
+  monitor)  cmd_monitor "$@" ;;
+  update)   cmd_update ;;
+  help|-h|--help) cmd_help ;;
+  *)        echo "Unknown command: $cmd"; cmd_help; exit 1 ;;
+esac
