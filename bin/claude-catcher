@@ -89,6 +89,66 @@ cmd_monitor() {
   fi
 }
 
+cmd_config() {
+  local BIN_DIR
+  BIN_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  local CATCHER="$BIN_DIR/claude-catcher"
+  local current
+  current=$(crontab -l 2>/dev/null | grep "claude-catcher monitor" || true)
+
+  if [ -n "$current" ]; then
+    echo "Current cron entry:"
+    echo "  $current"
+  else
+    echo "No cron job configured."
+  fi
+  echo ""
+
+  # On/off
+  read -p "Enable cron job? [y/N] " enable
+  if [[ ! "$enable" =~ ^[Yy]$ ]]; then
+    if [ -n "$current" ]; then
+      crontab -l 2>/dev/null | grep -v "claude-catcher monitor" | crontab -
+      echo "Cron job removed."
+    fi
+    return
+  fi
+
+  # Interval
+  echo ""
+  echo "Interval:"
+  echo "  1) Every 1 minute"
+  echo "  2) Every 5 minutes (default)"
+  echo "  3) Every 15 minutes"
+  echo "  4) Every 30 minutes"
+  read -p "Choose [1-4]: " interval_choice
+  case "$interval_choice" in
+    1) schedule="* * * * *" ;;
+    3) schedule="*/15 * * * *" ;;
+    4) schedule="*/30 * * * *" ;;
+    *) schedule="*/5 * * * *" ;;
+  esac
+
+  # Flags
+  local flags=""
+  echo ""
+  read -p "Auto-kill strays? [Y/n] " kill_choice
+  [[ ! "$kill_choice" =~ ^[Nn]$ ]] && flags="$flags --kill"
+
+  read -p "Send macOS notifications? [Y/n] " notify_choice
+  [[ ! "$notify_choice" =~ ^[Nn]$ ]] && flags="$flags --notify"
+
+  read -p "Suppress 'no strays' log entries? [Y/n] " quiet_choice
+  [[ ! "$quiet_choice" =~ ^[Nn]$ ]] && flags="$flags --quiet"
+
+  local cron_cmd="$CATCHER monitor$flags"
+
+  # Install
+  (crontab -l 2>/dev/null | grep -v "claude-catcher monitor"; echo "$schedule $cron_cmd") | crontab -
+  echo ""
+  echo "Cron installed: $schedule $cron_cmd"
+}
+
 cmd_update() {
   cd "$CLAUDE_CATCHER_ROOT"
   git pull --ff-only
@@ -103,6 +163,7 @@ Commands:
   ps, ls          List stray Claude processes
   kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
   monitor         Cron-friendly monitor (--kill --notify --quiet)
+  config          Configure the cron job (interval, flags)
   update          Pull latest from git
   help            Show this help
 
@@ -130,6 +191,7 @@ case "$cmd" in
   ps|ls)    cmd_ps "$@" ;;
   kill)     cmd_kill "$@" ;;
   monitor)  cmd_monitor "$@" ;;
+  config)   cmd_config ;;
   update)   cmd_update ;;
   help|-h|--help) cmd_help ;;
   *)        echo "Unknown command: $cmd"; cmd_help; exit 1 ;;
