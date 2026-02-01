@@ -4,7 +4,7 @@ set -e
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 BIN_DIR="$HOME/.local/bin"
 CRON_SCHEDULE="*/5 * * * *"
-CRON_CMD="$BIN_DIR/claude-catcher --kill --notify --quiet"
+CRON_CMD="$BIN_DIR/claude-catcher monitor --kill --notify --quiet"
 
 mkdir -p "$BIN_DIR"
 
