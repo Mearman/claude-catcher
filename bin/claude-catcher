@@ -131,9 +131,10 @@ cmd_config() {
   read -p "Choose [1-4]: " interval_choice
   case "$interval_choice" in
     1) schedule="* * * * *" ;;
+    2) schedule="*/5 * * * *" ;;
     3) schedule="*/15 * * * *" ;;
     4) schedule="*/30 * * * *" ;;
-    *) schedule="*/5 * * * *" ;;
+    *) echo "  Invalid choice, using default (every 5 minutes)."; schedule="*/5 * * * *" ;;
   esac
 
   # Flags
