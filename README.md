@@ -6,22 +6,35 @@ Finds and kills runaway Claude Code processes that have detached from their term
 
 Claude Code processes occasionally become orphaned — detached from any terminal, stuck in a running state, each consuming 40-90% CPU. Left unchecked, they accumulate and grind your machine to a halt.
 
-## Commands
+## Usage
 
-| Command          | Description                                                |
-| ---------------- | ---------------------------------------------------------- |
-| `stray-claude`   | List stray processes                                       |
-| `hang-claude`    | Kill stray processes (tries SIGTERM, escalates to SIGKILL) |
-| `hang-claude -f` | Force kill with SIGKILL immediately                        |
-| `claude-catcher` | Cron-friendly monitor with flags below                     |
+```
+claude-catcher <command> [options]
 
-### claude-catcher flags
+Commands:
+  ps, ls          List stray Claude processes
+  kill [-f]       Kill strays (SIGTERM, then SIGKILL). -f for immediate SIGKILL
+  monitor         Cron-friendly monitor (--kill --notify --quiet)
+  update          Pull latest from git
+  help            Show this help
+```
 
-| Flag       | Description                          |
-| ---------- | ------------------------------------ |
-| `--kill`   | Auto-kill strays (default: log only) |
-| `--notify` | Send macOS notification              |
-| `--quiet`  | Suppress "no strays" log entries     |
+### Shorthand aliases
+
+`stray-claude` and `hang-claude` are also installed as shortcuts:
+
+| Alias | Equivalent |
+|---|---|
+| `stray-claude` | `claude-catcher ps` |
+| `hang-claude` | `claude-catcher kill` |
+
+### Monitor flags
+
+| Flag | Description |
+|---|---|
+| `--kill` | Auto-kill strays (default: log only) |
+| `--notify` | Send macOS notification |
+| `--quiet` | Suppress "no strays" log entries |
 
 Logs are written to `~/.local/log/claude-catcher.log`.
 
@@ -41,6 +54,12 @@ Ensure `~/.local/bin` is on your PATH:
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
+## Update
+
+```bash
+claude-catcher update
+```
+
 ## Uninstall
 
 ```bash
@@ -50,7 +69,6 @@ export PATH="$HOME/.local/bin:$PATH"
 ## How it works
 
 A "stray" is any `claude` process that:
-
 - Has no controlling terminal (`??`)
 - Is in running state (`R`)
 
