@@ -45,6 +45,12 @@ cmd_kill() {
 }
 
 cmd_monitor() {
+  local LOCK_DIR="/tmp/claude-catcher.lock"
+  if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+    exit 0  # another instance is running
+  fi
+  trap 'rmdir "$LOCK_DIR" 2>/dev/null' EXIT
+
   local LOG_DIR="$HOME/.local/log"
   local LOG_FILE="$LOG_DIR/claude-catcher.log"
   local KILL=false NOTIFY=false QUIET=false
