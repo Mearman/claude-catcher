@@ -1,0 +1,27 @@
+#!/bin/bash
+# Finds and kills stray Claude processes
+source "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/../lib/lib.sh"
+
+pids=$(find_strays)
+
+if [ -z "$pids" ]; then
+  echo "No stray Claude processes found."
+  exit 0
+fi
+
+count=$(count_strays "$pids")
+echo "Found $count stray Claude process(es):"
+show_strays "$pids"
+echo ""
+
+if [ "$1" = "-f" ]; then
+  echo "Force killing (SIGKILL)..."
+  kill -9 $pids
+else
+  kill_strays "$pids"
+  if [ $? -eq 1 ]; then
+    echo "Force killed $count stray(s)."
+  else
+    echo "Killed $count stray(s)."
+  fi
+fi
